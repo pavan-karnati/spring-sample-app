@@ -1,0 +1,19 @@
+{
+  "$schema": "https://raw.githubusercontent.com/jetify-com/devbox/0.17.2/.schema/devbox.schema.json",
+  "packages": [
+    "jdk@17",
+    "maven",
+    "gradle",
+    "pre-commit@latest"
+  ],
+  "shell": {
+    "init_hook": [
+      "export GPG_TTY=$(tty)"
+    ],
+    "scripts": {
+      "test": [
+        "echo \"Error: no test specified\" && exit 1"
+      ]
+    }
+  }
+}

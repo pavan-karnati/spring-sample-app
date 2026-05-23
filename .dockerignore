@@ -1,0 +1,10 @@
+.git
+.devbox
+.github
+.idea
+.vscode
+build/
+src/test/
+*.md
+devbox.*
+*.bat
