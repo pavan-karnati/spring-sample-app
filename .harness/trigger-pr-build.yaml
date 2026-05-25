@@ -18,13 +18,5 @@ trigger:
             - Open
             - Reopen
             - Synchronize
-  inputYaml: |
-    pipeline:
-      identifier: springsampleappprbuild
-      properties:
-        ci:
-          codebase:
-            build:
-              type: PR
-              spec:
-                number: <+trigger.prNumber>
+  inputSetRefs:
+    - prbuildinput

@@ -16,13 +16,5 @@ trigger:
           autoAbortPreviousExecutions: true
           # Run on all branches except main (main is covered by the release pipeline)
           branchName: "!main"
-  inputYaml: |
-    pipeline:
-      identifier: precommitchecks
-      properties:
-        ci:
-          codebase:
-            build:
-              type: branch
-              spec:
-                branch: <+trigger.branch>
+  inputSetRefs:
+    - precommitpushinput

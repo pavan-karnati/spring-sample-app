@@ -1,0 +1,14 @@
+inputSet:
+  name: pre-commit-push-input
+  identifier: precommitpushinput
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: precommitchecks
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: <+trigger.branch>

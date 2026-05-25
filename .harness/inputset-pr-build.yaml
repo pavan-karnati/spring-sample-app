@@ -1,0 +1,14 @@
+inputSet:
+  name: pr-build-input
+  identifier: prbuildinput
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: springsampleappprbuild
+    properties:
+      ci:
+        codebase:
+          build:
+            type: PR
+            spec:
+              number: <+trigger.prNumber>

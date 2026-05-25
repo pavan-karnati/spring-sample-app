@@ -15,13 +15,5 @@ trigger:
           connectorRef: pavankarnatigh
           autoAbortPreviousExecutions: false
           branchName: main
-  inputYaml: |
-    pipeline:
-      identifier: release
-      properties:
-        ci:
-          codebase:
-            build:
-              type: branch
-              spec:
-                branch: main
+  inputSetRefs:
+    - releasemaininput
