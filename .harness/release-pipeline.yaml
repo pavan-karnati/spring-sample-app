@@ -45,6 +45,10 @@ pipeline:
                       curl -fsSL "https://github.com/caarlos0/svu/releases/download/v${SVU_VERSION}/svu_${SVU_VERSION}_linux_amd64.tar.gz" \
                         | tar -xz -C /usr/local/bin svu
 
+                      # Configure git credentials using Harness-injected netrc vars
+                      git config --global credential.helper store
+                      echo "https://${DRONE_NETRC_USERNAME}:${DRONE_NETRC_PASSWORD}@github.com" > ~/.git-credentials
+
                       git fetch --tags
 
                       # svu next returns the next version based on conventional commits.
@@ -76,6 +80,8 @@ pipeline:
                         exit 0
                       fi
 
+                      git config --global credential.helper store
+                      echo "https://${DRONE_NETRC_USERNAME}:${DRONE_NETRC_PASSWORD}@github.com" > ~/.git-credentials
                       git config user.email "ci@harness.io"
                       git config user.name "Harness CI"
                       git fetch --tags
