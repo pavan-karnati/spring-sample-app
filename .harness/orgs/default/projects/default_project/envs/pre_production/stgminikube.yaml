@@ -1,0 +1,6 @@
+environment:
+  name: stg-minikube
+  identifier: stgminikube
+  orgIdentifier: default
+  projectIdentifier: default_project
+  type: PreProduction

@@ -60,7 +60,7 @@ ingress:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
   hosts:
-    - host: spring-app.test
+    - host: spring-app.test        # dev — overridden to spring-app-stg.test for staging deploy
       paths:
         - path: /
           pathType: Prefix

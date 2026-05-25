@@ -1,0 +1,5 @@
+service:
+  name: spring-sample-stg
+  identifier: springsamplestg
+  orgIdentifier: default
+  projectIdentifier: default_project

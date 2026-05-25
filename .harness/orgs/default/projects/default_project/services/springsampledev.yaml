@@ -1,0 +1,26 @@
+service:
+  name: spring-sample-dev
+  identifier: springsampledev
+  orgIdentifier: default
+  projectIdentifier: default_project
+  serviceDefinition:
+    spec:
+      manifests:
+        - manifest:
+            identifier: dev
+            type: HelmChart
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: pavankarnatigh
+                  gitFetchType: Branch
+                  folderPath: charts/spring-sample-app
+                  branch: <+input>
+              subChartPath: ""
+              optionalValuesYaml: false
+              skipResourceVersioning: false
+              enableDeclarativeRollback: false
+              helmVersion: V3
+              fetchHelmChartMetadata: false
+    type: NativeHelm

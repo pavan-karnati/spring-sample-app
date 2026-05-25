@@ -45,6 +45,10 @@ pipeline:
                       curl -fsSL "https://github.com/caarlos0/svu/releases/download/v${SVU_VERSION}/svu_${SVU_VERSION}_linux_amd64.tar.gz" \
                         | tar -xz -C /usr/local/bin svu
 
+                      # Configure git credentials using Harness-injected netrc vars
+                      git config --global credential.helper store
+                      echo "https://${DRONE_NETRC_USERNAME}:${DRONE_NETRC_PASSWORD}@github.com" > ~/.git-credentials
+
                       git fetch --tags
 
                       # svu next returns the next version based on conventional commits.
@@ -76,6 +80,8 @@ pipeline:
                         exit 0
                       fi
 
+                      git config --global credential.helper store
+                      echo "https://${DRONE_NETRC_USERNAME}:${DRONE_NETRC_PASSWORD}@github.com" > ~/.git-credentials
                       git config user.email "ci@harness.io"
                       git config user.name "Harness CI"
                       git fetch --tags
@@ -114,3 +120,61 @@ pipeline:
                       - <+steps.compute_next_version.output.outputVariables.NEXT_VERSION>
                       - latest
                     caching: true
+    - stage:
+        name: deploy-staging
+        identifier: deploystaging
+        description: "Deploy semver-tagged image to staging namespace on minikube"
+        type: Deployment
+        when:
+          pipelineStatus: Success
+          condition: <+pipeline.stages.semver_release.spec.execution.steps.compute_next_version.output.outputVariables.NEXT_VERSION> != "SKIP"
+        spec:
+          deploymentType: NativeHelm
+          service:
+            serviceRef: springsamplestg
+            serviceInputs:
+              serviceDefinition:
+                type: NativeHelm
+                spec:
+                  manifests:
+                    - manifest:
+                        identifier: stg
+                        type: HelmChart
+                        spec:
+                          store:
+                            type: Github
+                            spec:
+                              branch: main
+          environment:
+            environmentRef: stgminikube
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: minikube
+          execution:
+            steps:
+              - step:
+                  name: Helm Deployment
+                  identifier: helmDeployment
+                  type: HelmDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+                    ignoreReleaseHistFailStatus: false
+                    useUpgradeInstall: true
+                    commandFlags:
+                      - commandType: Upgrade
+                        flag: "--set image.tag=<+pipeline.stages.semver_release.spec.execution.steps.compute_next_version.output.outputVariables.NEXT_VERSION> --set ingress.hosts[0].host=spring-app-stg.test"
+            rollbackSteps:
+              - step:
+                  name: Helm Rollback
+                  identifier: helmRollback
+                  type: HelmRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
