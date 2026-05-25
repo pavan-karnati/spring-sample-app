@@ -1,0 +1,28 @@
+trigger:
+  name: Push Pre-commit Trigger
+  identifier: PushPrecommitTrigger
+  enabled: true
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipelineIdentifier: precommitchecks
+  source:
+    type: Webhook
+    spec:
+      type: Github
+      spec:
+        type: Push
+        spec:
+          connectorRef: pavankarnatigh
+          autoAbortPreviousExecutions: true
+          # Run on all branches except main (main is covered by the release pipeline)
+          branchName: "!main"
+  inputYaml: |
+    pipeline:
+      identifier: precommitchecks
+      properties:
+        ci:
+          codebase:
+            build:
+              type: branch
+              spec:
+                branch: <+trigger.branch>

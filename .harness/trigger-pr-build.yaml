@@ -1,0 +1,30 @@
+trigger:
+  name: PR Build Trigger
+  identifier: PRBuildTrigger
+  enabled: true
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipelineIdentifier: springsampleappprbuild
+  source:
+    type: Webhook
+    spec:
+      type: Github
+      spec:
+        type: PullRequest
+        spec:
+          connectorRef: pavankarnatigh
+          autoAbortPreviousExecutions: true
+          actions:
+            - Open
+            - Reopen
+            - Synchronize
+  inputYaml: |
+    pipeline:
+      identifier: springsampleappprbuild
+      properties:
+        ci:
+          codebase:
+            build:
+              type: PR
+              spec:
+                number: <+trigger.prNumber>

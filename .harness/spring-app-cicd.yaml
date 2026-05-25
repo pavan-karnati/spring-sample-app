@@ -1,6 +1,6 @@
 pipeline:
-  name: spring-sample-app
-  identifier: springsampleapp
+  name: spring-sample-app-pr-build
+  identifier: springsampleappprbuild
   projectIdentifier: default_project
   orgIdentifier: default
   tags: {}
@@ -28,6 +28,25 @@ pipeline:
           execution:
             steps:
               - step:
+                  type: Run
+                  name: Set Image Tag
+                  identifier: set_image_tag
+                  spec:
+                    shell: Sh
+                    image: alpine:3.19
+                    command: |
+                      BRANCH="<+codebase.sourceBranch>"
+                      # Sanitize: lowercase, replace non-alphanumeric (except hyphen/dot) with hyphen,
+                      # strip leading/trailing hyphens — safe Docker tag
+                      IMAGE_TAG=$(echo "$BRANCH" \
+                        | tr '[:upper:]' '[:lower:]' \
+                        | sed 's|/|-|g' \
+                        | sed 's|[^a-z0-9.-]|-|g' \
+                        | sed 's|^-*||;s|-*$||')
+                      echo "Branch '$BRANCH' -> tag '$IMAGE_TAG'"
+                    outputVariables:
+                      - name: IMAGE_TAG
+              - step:
                   type: Test
                   name: RunTestsWithIntelligence
                   identifier: RunTestsWithIntelligence
@@ -43,21 +62,21 @@ pipeline:
                           - target/surefire-reports/*.xml
               - step:
                   type: Run
-                  name: Build
-                  identifier: Build
+                  name: Maven Package
+                  identifier: maven_package
                   spec:
                     command: mvn package -DskipTests
                     shell: Sh
                     image: maven:3.9-eclipse-temurin-17
               - step:
                   type: BuildAndPushDockerRegistry
-                  name: BuildAndPushDockerRegistry_1
-                  identifier: BuildAndPushDockerRegistry_1
+                  name: Build and Push Image
+                  identifier: build_push_image
                   spec:
                     connectorRef: dockerhub
                     repo: kpkr7/springsampleapp
                     tags:
-                      - <+codebase.shortCommitSha>
+                      - <+steps.set_image_tag.output.outputVariables.IMAGE_TAG>
                     caching: true
     - stage:
         name: deploy-minikube
@@ -80,7 +99,7 @@ pipeline:
                           store:
                             type: Github
                             spec:
-                                branch: <+codebase.sourceBranch>
+                              branch: <+codebase.sourceBranch>
           environment:
             environmentRef: devminikube
             deployToAll: false
@@ -97,6 +116,9 @@ pipeline:
                     skipDryRun: false
                     ignoreReleaseHistFailStatus: false
                     useUpgradeInstall: true
+                    commandFlags:
+                      - commandType: Upgrade
+                        flag: "--set image.tag=<+pipeline.stages.Build.spec.execution.steps.set_image_tag.output.outputVariables.IMAGE_TAG>"
             rollbackSteps:
               - step:
                   name: Helm Rollback

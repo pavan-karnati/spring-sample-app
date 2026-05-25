@@ -1,0 +1,44 @@
+pipeline:
+  name: pre-commit-checks
+  identifier: precommitchecks
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: pavankarnatigh
+        build: <+input>
+  stages:
+    - stage:
+        name: Pre-commit
+        identifier: Precommit
+        description: "Runs pre-commit hooks on every push to validate code quality"
+        type: CI
+        spec:
+          caching:
+            enabled: true
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Run Pre-commit
+                  identifier: run_precommit
+                  spec:
+                    shell: Sh
+                    image: python:3.12-slim
+                    command: |
+                      apt-get update -qq && apt-get install -y -qq git curl
+                      # Install Java for Maven-based hooks
+                      apt-get install -y -qq default-jdk-headless
+                      pip install pre-commit --quiet
+                      # Install Helm for helm-lint hook
+                      curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash -s -- --version v3.14.0
+                      pre-commit run --all-files --show-diff-on-failure
