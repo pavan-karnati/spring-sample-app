@@ -1,0 +1,14 @@
+pipeline:
+  name: pre-commit-checks
+  identifier: precommitchecks
+  tags: {}
+  template:
+    templateRef: precommitchecks
+    versionLabel: Version1
+    templateInputs:
+      properties:
+        ci:
+          codebase:
+            build: <+input>
+  projectIdentifier: default_project
+  orgIdentifier: default

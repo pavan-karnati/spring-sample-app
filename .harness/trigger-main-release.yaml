@@ -1,0 +1,19 @@
+trigger:
+  name: Main Merge Release Trigger
+  identifier: MainMergeReleaseTrigger
+  enabled: true
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipelineIdentifier: release
+  source:
+    type: Webhook
+    spec:
+      type: Github
+      spec:
+        type: Push
+        spec:
+          connectorRef: pavankarnatigh
+          autoAbortPreviousExecutions: false
+          branchName: main
+  inputSetRefs:
+    - releasemaininput

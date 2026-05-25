@@ -15,6 +15,15 @@ repos:
       - id: no-commit-to-branch
         args: ['--branch', 'main', '--branch', 'master']
 
+  # Conventional Commits — enforces commit message format for git-sv semver bumping
+  # Format: <type>[optional scope]: <description>
+  # Types that trigger version bumps: feat (minor), fix (patch), feat!/BREAKING CHANGE (major)
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.29.0
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
   # Secret scanning
   - repo: https://github.com/gitleaks/gitleaks
     rev: v8.21.2

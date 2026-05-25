@@ -1,0 +1,14 @@
+inputSet:
+  name: release-main-input
+  identifier: releasemaininput
+  orgIdentifier: default
+  projectIdentifier: default_project
+  pipeline:
+    identifier: release
+    properties:
+      ci:
+        codebase:
+          build:
+            type: branch
+            spec:
+              branch: main

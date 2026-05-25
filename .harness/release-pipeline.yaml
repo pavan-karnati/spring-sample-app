@@ -1,0 +1,126 @@
+pipeline:
+  name: release
+  identifier: release
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: pavankarnatigh
+        build:
+          type: branch
+          spec:
+            branch: main
+  stages:
+    - stage:
+        name: Semver and Release
+        identifier: semver_release
+        description: "Computes next semver via git-sv (sv4git), tags the repo, builds and pushes the release image"
+        type: CI
+        spec:
+          caching:
+            enabled: true
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Run
+                  name: Compute Next Version
+                  identifier: compute_next_version
+                  spec:
+                    shell: Sh
+                    image: alpine/git:2.43.0
+                    command: |
+                      apk add --no-cache curl tar
+
+                      # Install git-sv (sv4git)
+                      GIT_SV_VERSION="2.8.0"
+                      curl -fsSL "https://github.com/theofidry/git-sv/releases/download/v${GIT_SV_VERSION}/git-sv_${GIT_SV_VERSION}_linux_amd64.tar.gz" \
+                        | tar -xz -C /usr/local/bin git-sv
+                      chmod +x /usr/local/bin/git-sv
+
+                      # Configure git identity for tagging
+                      git config user.email "ci@harness.io"
+                      git config user.name "Harness CI"
+
+                      # Fetch all tags to determine current version
+                      git fetch --tags
+
+                      # Get the current latest tag (e.g. v0.0.1 -> 0.0.1)
+                      CURRENT_VERSION=$(git tag --sort=-v:refname | grep -Eo '^v?[0-9]+\.[0-9]+\.[0-9]+' | head -1 | sed 's/^v//')
+
+                      # Compute the next semver from conventional commits
+                      NEXT_VERSION=$(git-sv next-version 2>/dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+
+                      if [ -z "$NEXT_VERSION" ] && [ -z "$CURRENT_VERSION" ]; then
+                        # No tags and no bumping commits — use 0.1.0 as baseline
+                        NEXT_VERSION="0.1.0"
+                      elif [ -z "$NEXT_VERSION" ]; then
+                        # No bumping commits (only ci:/chore:/docs: etc) — skip release
+                        echo "No version-bumping commits found (only ci:/chore:/docs:). Current version is ${CURRENT_VERSION}. Skipping release."
+                        NEXT_VERSION="SKIP"
+                      fi
+                      echo "Next release version: $NEXT_VERSION"
+                    outputVariables:
+                      - name: NEXT_VERSION
+
+              - step:
+                  type: Run
+                  name: Create and Push Git Tag
+                  identifier: create_git_tag
+                  spec:
+                    shell: Sh
+                    image: alpine/git:2.43.0
+                    command: |
+                      VERSION="<+steps.compute_next_version.output.outputVariables.NEXT_VERSION>"
+
+                      if [ "$VERSION" = "SKIP" ]; then
+                        echo "No version bump required, skipping git tag."
+                        exit 0
+                      fi
+
+                      git config user.email "ci@harness.io"
+                      git config user.name "Harness CI"
+                      git fetch --tags
+
+                      # Only create tag if it doesn't already exist
+                      if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+                        echo "Tag v${VERSION} already exists, skipping"
+                      else
+                        git tag -a "v${VERSION}" -m "Release v${VERSION}"
+                        git push origin "v${VERSION}"
+                        echo "Tagged and pushed v${VERSION}"
+                      fi
+
+              - step:
+                  type: Run
+                  name: Maven Package
+                  identifier: maven_package
+                  spec:
+                    command: |
+                      if [ "<+steps.compute_next_version.output.outputVariables.NEXT_VERSION>" = "SKIP" ]; then
+                        echo "No version bump required, skipping build."
+                        exit 0
+                      fi
+                      mvn package -DskipTests
+                    shell: Sh
+                    image: maven:3.9-eclipse-temurin-17
+
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: Build and Push Release Image
+                  identifier: build_push_release_image
+                  spec:
+                    connectorRef: dockerhub
+                    repo: kpkr7/springsampleapp
+                    tags:
+                      - <+steps.compute_next_version.output.outputVariables.NEXT_VERSION>
+                      - latest
+                    caching: true
