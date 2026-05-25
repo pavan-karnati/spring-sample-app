@@ -1,0 +1,9 @@
+[tool.commitizen]
+# Enforce Conventional Commits so git-sv can compute semver bumps:
+#   fix: ...          → PATCH bump (0.0.x)
+#   feat: ...         → MINOR bump (0.x.0)
+#   feat!: ...        → MAJOR bump (x.0.0)
+#   BREAKING CHANGE:  → MAJOR bump (x.0.0)
+name = "cz_conventional_commits"
+version_scheme = "semver"
+tag_format = "v$version"
