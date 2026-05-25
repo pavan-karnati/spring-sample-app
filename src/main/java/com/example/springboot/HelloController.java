@@ -34,6 +34,7 @@ public class HelloController {
   public String index() {
     int count = counter.incrementAndGet();
     String[] quote = quotes.get(random.nextInt(quotes.size()));
+    String imageTag = System.getenv().getOrDefault("IMAGE_TAG", "local");
 
     return """
         <!DOCTYPE html>
@@ -73,6 +74,7 @@ public class HelloController {
               margin-bottom: 20px;
             }
             .author { font-size: 0.95rem; color: #94a3b8; letter-spacing: 1px; margin-bottom: 32px; }
+            .badges { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; }
             .counter {
               display: inline-block;
               background: rgba(167,139,250,0.2);
@@ -83,6 +85,17 @@ public class HelloController {
               color: #c4b5fd;
               letter-spacing: 1px;
             }
+            .tag {
+              display: inline-block;
+              background: rgba(52,211,153,0.15);
+              border: 1px solid #34d399;
+              border-radius: 999px;
+              padding: 6px 20px;
+              font-size: 0.85rem;
+              color: #6ee7b7;
+              letter-spacing: 1px;
+              font-family: monospace;
+            }
             .hint { margin-top: 16px; font-size: 0.78rem; color: #475569; }
           </style>
         </head>
@@ -92,12 +105,15 @@ public class HelloController {
             <h1>Hello from Spring Boot</h1>
             <blockquote>"%s"</blockquote>
             <p class="author">%s</p>
-            <span class="counter">👁 Visit #%d</span>
+            <div class="badges">
+              <span class="counter">👁 Visit #%d</span>
+              <span class="tag">🏷 %s</span>
+            </div>
             <p class="hint">Refresh for a new quote ↻</p>
           </div>
         </body>
         </html>
         """
-        .formatted(quote[0], quote[1], count);
+        .formatted(quote[0], quote[1], count, imageTag);
   }
 }
