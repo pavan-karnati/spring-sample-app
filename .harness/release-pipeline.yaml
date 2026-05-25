@@ -41,8 +41,8 @@ pipeline:
                       apk add --no-cache curl tar
 
                       # Install svu — single binary, no config needed
-                      SVU_VERSION="2.1.0"
-                      curl -fsSL "https://github.com/caarlos0/svu/releases/download/v${SVU_VERSION}/svu_linux_amd64.tar.gz" \
+                      SVU_VERSION="3.4.1"
+                      curl -fsSL "https://github.com/caarlos0/svu/releases/download/v${SVU_VERSION}/svu_${SVU_VERSION}_linux_amd64.tar.gz" \
                         | tar -xz -C /usr/local/bin svu
 
                       git fetch --tags
