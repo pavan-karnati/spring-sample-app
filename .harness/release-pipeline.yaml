@@ -163,7 +163,7 @@ pipeline:
                     useUpgradeInstall: true
                     commandFlags:
                       - commandType: Upgrade
-                        flag: "--set image.tag=<+pipeline.stages.semver_release.spec.execution.steps.compute_next_version.output.outputVariables.NEXT_VERSION>"
+                        flag: "--set image.tag=<+pipeline.stages.semver_release.spec.execution.steps.compute_next_version.output.outputVariables.NEXT_VERSION> --set ingress.hosts[0].host=spring-app-stg.test"
             rollbackSteps:
               - step:
                   name: Helm Rollback
