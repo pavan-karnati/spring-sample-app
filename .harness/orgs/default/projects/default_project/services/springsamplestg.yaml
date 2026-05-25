@@ -3,3 +3,24 @@ service:
   identifier: springsamplestg
   orgIdentifier: default
   projectIdentifier: default_project
+  serviceDefinition:
+    type: NativeHelm
+    spec:
+      manifests:
+        - manifest:
+            identifier: stg
+            type: HelmChart
+            spec:
+              store:
+                type: Github
+                spec:
+                  connectorRef: pavankarnatigh
+                  gitFetchType: Branch
+                  folderPath: charts/spring-sample-app
+                  branch: main
+              subChartPath: ""
+              optionalValuesYaml: false
+              skipResourceVersioning: false
+              enableDeclarativeRollback: false
+              helmVersion: V3
+              fetchHelmChartMetadata: false
