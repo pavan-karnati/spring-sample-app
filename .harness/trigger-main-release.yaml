@@ -2,7 +2,10 @@ trigger:
   name: Main Merge Release Trigger
   identifier: MainMergeReleaseTrigger
   enabled: true
+  encryptedWebhookSecretIdentifier: ""
+  description: ""
   orgIdentifier: default
+  stagesToExecute: []
   projectIdentifier: default_project
   pipelineIdentifier: release
   source:
@@ -13,5 +16,11 @@ trigger:
         type: Push
         spec:
           connectorRef: pavankarnatigh
-          autoAbortPreviousExecutions: false
-          branchName: main
+          autoAbortPreviousExecutions: true
+          payloadConditions:
+            - key: targetBranch
+              operator: Equals
+              value: main
+          headerConditions: []
+          actions: []
+  pipelineBranchName: <+trigger.branch>
