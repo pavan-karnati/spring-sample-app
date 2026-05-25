@@ -57,5 +57,57 @@ pipeline:
                     connectorRef: dockerhub
                     repo: kpkr7/springsampleapp
                     tags:
-                      - "0.1"
+                      - <+codebase.shortCommitSha>
                     caching: true
+    - stage:
+        name: deploy-minikube
+        identifier: deployminikube
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: NativeHelm
+          service:
+            serviceRef: springsampledev
+            serviceInputs:
+              serviceDefinition:
+                type: NativeHelm
+                spec:
+                  manifests:
+                    - manifest:
+                        identifier: dev
+                        type: HelmChart
+                        spec:
+                          store:
+                            type: Github
+                            spec:
+                                branch: <+codebase.sourceBranch>
+          environment:
+            environmentRef: devminikube
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: minikube
+          execution:
+            steps:
+              - step:
+                  name: Helm Deployment
+                  identifier: helmDeployment
+                  type: HelmDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+                    ignoreReleaseHistFailStatus: false
+                    useUpgradeInstall: true
+            rollbackSteps:
+              - step:
+                  name: Helm Rollback
+                  identifier: helmRollback
+                  type: HelmRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
