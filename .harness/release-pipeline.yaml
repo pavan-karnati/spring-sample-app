@@ -131,14 +131,14 @@ pipeline:
         spec:
           deploymentType: NativeHelm
           service:
-            serviceRef: springsampledev
+            serviceRef: springsamplestg
             serviceInputs:
               serviceDefinition:
                 type: NativeHelm
                 spec:
                   manifests:
                     - manifest:
-                        identifier: dev
+                        identifier: stg
                         type: HelmChart
                         spec:
                           store:
@@ -146,7 +146,7 @@ pipeline:
                             spec:
                               branch: main
           environment:
-            environmentRef: devminikube
+            environmentRef: stgminikube
             deployToAll: false
             infrastructureDefinitions:
               - identifier: minikube
@@ -163,7 +163,7 @@ pipeline:
                     useUpgradeInstall: true
                     commandFlags:
                       - commandType: Upgrade
-                        flag: "--set image.tag=<+pipeline.stages.semver_release.spec.execution.steps.compute_next_version.output.outputVariables.NEXT_VERSION> --namespace staging --create-namespace"
+                        flag: "--set image.tag=<+pipeline.stages.semver_release.spec.execution.steps.compute_next_version.output.outputVariables.NEXT_VERSION>"
             rollbackSteps:
               - step:
                   name: Helm Rollback
