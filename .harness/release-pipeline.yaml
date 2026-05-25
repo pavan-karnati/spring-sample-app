@@ -31,19 +31,6 @@ pipeline:
           deploymentType: NativeHelm
           service:
             serviceRef: springsamplestg
-            serviceInputs:
-              serviceDefinition:
-                type: NativeHelm
-                spec:
-                  manifests:
-                    - manifest:
-                        identifier: stg
-                        type: HelmChart
-                        spec:
-                          store:
-                            type: Github
-                            spec:
-                              branch: main
           environment:
             environmentRef: stgminikube
             deployToAll: false
