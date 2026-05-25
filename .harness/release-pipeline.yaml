@@ -35,7 +35,7 @@ pipeline:
             environmentRef: stgminikube
             deployToAll: false
             infrastructureDefinitions:
-              - identifier: minikube
+              - identifier: stgminikube
           execution:
             steps:
               - step:
