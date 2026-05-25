@@ -4,7 +4,10 @@
     "jdk@17",
     "maven",
     "gradle",
-    "pre-commit@latest"
+    "pre-commit@latest",
+    "kubernetes-helm@latest",
+    "kubectl@latest",
+    "kubectx@latest"
   ],
   "shell": {
     "init_hook": [

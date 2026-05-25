@@ -50,3 +50,8 @@ logs/
 .env
 .env.local
 *.pid
+
+# Helm
+charts/*/charts/
+charts/*/*.tgz
+charts/*/Chart.lock
