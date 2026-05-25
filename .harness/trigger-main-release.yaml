@@ -15,5 +15,3 @@ trigger:
           connectorRef: pavankarnatigh
           autoAbortPreviousExecutions: false
           branchName: main
-  inputSetRefs:
-    - releasemaininput
