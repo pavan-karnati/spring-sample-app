@@ -1,0 +1,113 @@
+pipeline:
+  name: spring-sample-app
+  identifier: springsampleapp
+  projectIdentifier: default_project
+  orgIdentifier: default
+  tags: {}
+  properties:
+    ci:
+      codebase:
+        connectorRef: pavankarnatigh
+        build: <+input>
+  stages:
+    - stage:
+        name: Build
+        identifier: Build
+        description: ""
+        type: CI
+        spec:
+          caching:
+            enabled: true
+          cloneCodebase: true
+          platform:
+            os: Linux
+            arch: Amd64
+          runtime:
+            type: Cloud
+            spec: {}
+          execution:
+            steps:
+              - step:
+                  type: Test
+                  name: RunTestsWithIntelligence
+                  identifier: RunTestsWithIntelligence
+                  spec:
+                    command: mvn test
+                    shell: Sh
+                    image: maven:3.9-eclipse-temurin-17
+                    intelligenceMode: true
+                    reports:
+                      type: JUnit
+                      spec:
+                        paths:
+                          - target/surefire-reports/*.xml
+              - step:
+                  type: Run
+                  name: Build
+                  identifier: Build
+                  spec:
+                    command: mvn package -DskipTests
+                    shell: Sh
+                    image: maven:3.9-eclipse-temurin-17
+              - step:
+                  type: BuildAndPushDockerRegistry
+                  name: BuildAndPushDockerRegistry_1
+                  identifier: BuildAndPushDockerRegistry_1
+                  spec:
+                    connectorRef: dockerhub
+                    repo: kpkr7/springsampleapp
+                    tags:
+                      - <+codebase.shortCommitSha>
+                    caching: true
+    - stage:
+        name: deploy-minikube
+        identifier: deployminikube
+        description: ""
+        type: Deployment
+        spec:
+          deploymentType: NativeHelm
+          service:
+            serviceRef: springsampledev
+            serviceInputs:
+              serviceDefinition:
+                type: NativeHelm
+                spec:
+                  manifests:
+                    - manifest:
+                        identifier: dev
+                        type: HelmChart
+                        spec:
+                          store:
+                            type: Github
+                            spec:
+                                branch: <+codebase.sourceBranch>
+          environment:
+            environmentRef: devminikube
+            deployToAll: false
+            infrastructureDefinitions:
+              - identifier: minikube
+          execution:
+            steps:
+              - step:
+                  name: Helm Deployment
+                  identifier: helmDeployment
+                  type: HelmDeploy
+                  timeout: 10m
+                  spec:
+                    skipDryRun: false
+                    ignoreReleaseHistFailStatus: false
+                    useUpgradeInstall: true
+            rollbackSteps:
+              - step:
+                  name: Helm Rollback
+                  identifier: helmRollback
+                  type: HelmRollback
+                  timeout: 10m
+                  spec: {}
+        tags: {}
+        failureStrategies:
+          - onFailure:
+              errors:
+                - AllErrors
+              action:
+                type: StageRollback
