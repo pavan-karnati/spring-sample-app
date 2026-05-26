@@ -30,6 +30,12 @@ public class HelloController {
     }
   }
 
+  @GetMapping(value = "/health", produces = MediaType.APPLICATION_JSON_VALUE)
+  public String health() {
+    String imageTag = System.getenv().getOrDefault("IMAGE_TAG", "local");
+    return "{\"status\":\"UP\",\"version\":\"%s\"}".formatted(imageTag);
+  }
+
   @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
   public String index() {
     int count = counter.incrementAndGet();
