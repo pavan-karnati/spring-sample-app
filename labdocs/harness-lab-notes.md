@@ -125,7 +125,7 @@ kubernetes-delegate-799dd45dc9-whxtx    1/1     Running   0          2m47s
 ### Build Infrastructure - Harness Cloud
 
 
-### First Successful CI Build 
+### First Successful CI Build
 
 With Harness Cloud as the runner, the build passed end-to-end. All 10 tests ran and passed. Steps: Initialize → Clone codebase → Restore Cache From Harness → RunTestsWithIntelligence → Build → Save Cache to Harness.
 
@@ -135,7 +135,7 @@ With Harness Cloud as the runner, the build passed end-to-end. All 10 tests ran 
 
 ![First successful CI build - Build #3, all 10 tests pass](screenshots/Screenshot_2.png)
 
-### Second CI Run - Harness Intelligence Cache Hit 
+### Second CI Run - Harness Intelligence Cache Hit
 
 The second run showed Harness Test Intelligence in action: all 10 tests were skipped (unchanged since last run) and the build saved 33 seconds.
 
@@ -245,7 +245,7 @@ The app was live at `http://spring-app-stg.test` showing version `0.3.0`.
 
 ### Product Usage
 
-The Harness Product Usage dashboard showed the account using 4 CD features over the lab period, with a visible deployment frequency spike mid-week as the pipelines were iterated on.
+The Harness Product Usage dashboard showed all the avaialble features.
 
 ![Harness CD Product Usage - deployment frequency and feature adoption](screenshots/cd4.png)
 
@@ -316,7 +316,7 @@ After restructuring the pipelines, the audit trail showed `SYSTEM` automatically
 
 ![Harness audit trail - SYSTEM deleted PR Build Trigger on 26 May 2026](screenshots/Screenshot_12.png)
 
-**Fix:** Recreated the PR trigger manually on the `spring-sample-app-pr-build` pipeline targeting the `pavan-karnati/spring-sample-app` repository.
+**Fix:** Recreated the PR trigger manually on the `spring-sample-app-pr-build` pipeline targeting the `pavan-karnati/spring-sample-app` repository
 
 ---
 
